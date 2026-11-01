@@ -1,0 +1,187 @@
+<!doctype html>
+<html lang="zh-Hant"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>海大電機島｜電機系學程互動地圖</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22%3E%3Ctext y=%22.9em%22 font-size=%2290%22%3E🏝️%3C/text%3E%3C/svg%3E">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@500;700&display=swap" rel="stylesheet">
+<style>
+:root{--sea:#2c93ab;--sea2:#14566e;--foam:#e8f8f8;--sand:#f1d9a1;--g1:#86c77a;--g2:#6db368;--panel:#fffdf6;--pt:#12303d;--mut:#5d7580;--line:#d9d2bd;--y:#f5b83d;--c1:#f2a33a;--c2:#3fa7d6;--c3:#e8618c;--c4:#7b61c9;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media(prefers-color-scheme:dark){:root:not([data-theme=light]){--sea:#14465a;--sea2:#0a2733;--foam:#2d6a7b;--sand:#8c7a55;--g1:#3d7a52;--g2:#336b47;--panel:#16303b;--pt:#e6f2f4;--mut:#9ab4bd;--line:#2c4b57}}
+*{box-sizing:border-box}html,body{height:100%;margin:0}
+body{font-family:'Noto Sans TC',system-ui,-apple-system,'PingFang TC','Microsoft JhengHei',sans-serif;background:var(--sea2);color:var(--pt);display:flex;flex-direction:column;overflow:hidden}
+header{display:flex;gap:12px;align-items:center;padding:10px 14px 4px;flex-wrap:wrap;color:#fff}
+h1{font-size:19px;margin:0;line-height:1.2}h1 small{display:block;font-size:11px;font-weight:500;opacity:.8}
+.tabs{display:flex;gap:4px;margin-left:auto}
+button{font:inherit;cursor:pointer}
+.t{border:1px solid #fff6;background:transparent;color:#fff;border-radius:99px;padding:5px 14px;font-size:13px}.t.on{background:#fff;color:#0a2733}
+.bar{display:flex;gap:6px;padding:6px 14px 10px;overflow-x:auto;align-items:center;color:#fff;font-size:12px;white-space:nowrap}
+.dc,.tg{border:1px solid #fff5;background:#0003;color:#fff;border-radius:8px;padding:4px 10px;font-size:12px}
+.dc.on,.tg.on{background:var(--y);color:#3a2a00;border-color:var(--y)}
+.sep{width:1px;height:18px;background:#fff4;margin:0 4px}
+main{position:relative;flex:1;min-height:0}
+#map{width:100%;height:100%;display:block;background:var(--sea)}
+.b{cursor:pointer;transition:opacity .25s}.b:hover .roof{transform:translateY(-3px)}.roof{transition:transform .15s}
+.b:focus-visible .wall{stroke:#000;stroke-width:3}.b:focus{outline:none}
+.b text{font-size:10.5px;font-weight:700;fill:#12303d;stroke:#fffc;stroke-width:3px;paint-order:stroke;text-anchor:middle}
+.b.pk{filter:drop-shadow(0 0 7px #ffd54a)}.b.cur .wall{stroke:#000;stroke-width:3}
+.focus .b:not(.cur):not(.rel){opacity:.3}.minor .b:not(.m){opacity:.28}
+.lk{fill:none;stroke:#fff;stroke-width:3;stroke-dasharray:7 6;animation:fl 1s linear infinite;pointer-events:none}
+@keyframes fl{to{stroke-dashoffset:-13}}@keyframes wv{50%{opacity:.15}}
+.wave{fill:none;stroke:var(--foam);stroke-width:2;opacity:.6;animation:wv 4s ease-in-out infinite}
+.zl{cursor:pointer}.zl text{font-size:15px;font-weight:700;fill:#fff;text-anchor:middle}
+.st,.dir{cursor:pointer}
+@media(prefers-reduced-motion:reduce){.lk,.wave{animation:none}}
+#card,#dir,#note{position:absolute;background:var(--panel);color:var(--pt);border-radius:14px;box-shadow:0 8px 28px #0005}
+#card{right:12px;top:12px;width:min(320px,calc(100% - 24px));padding:16px;display:none;max-height:calc(100% - 24px);overflow:auto;z-index:3}#card.on{display:block}
+#card h2{margin:0 24px 6px 0;font-size:20px}#card h4{margin:12px 0 2px;font-size:12px;color:var(--mut)}
+#card p{margin:4px 0;font-size:13px;line-height:1.6}.x{position:absolute;right:8px;top:8px;border:0;background:none;color:var(--mut);font-size:22px}
+.tag{display:inline-block;font-size:11px;border-radius:5px;padding:1px 7px;margin:0 4px 4px 0;background:var(--line)}.tag.y{background:var(--y);color:#3a2a00}
+.sm{font-size:11px;color:var(--mut)}
+#dir{left:12px;bottom:12px;width:min(390px,calc(100% - 24px));padding:12px;display:flex;gap:10px;z-index:2}
+#dir svg{flex:none;width:52px;height:62px;background:var(--sea);border-radius:10px}
+#dt{font-size:13px;line-height:1.65}#da{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap}
+#da button{border:0;border-radius:8px;padding:5px 12px;font-size:12px;background:var(--line);color:var(--pt)}#da button:first-child{background:var(--y);color:#3a2a00}
+#note{left:50%;top:10px;transform:translateX(-50%);padding:7px 14px;font-size:12px;display:none;max-width:calc(100% - 24px);z-index:1}
+#ov{position:absolute;inset:0;background:var(--panel);overflow:auto;padding:16px;display:none;z-index:4}
+#ov h3{margin:14px 0 6px;padding-left:8px;border-left:5px solid;font-size:15px}.row{display:flex;gap:6px;align-items:baseline;flex-wrap:wrap}.row>b{width:48px;font-size:12px;color:var(--mut)}
+.tl{display:grid;grid-template-columns:repeat(8,minmax(150px,1fr));gap:8px;min-width:1240px}.tl>div{background:#0001;border-radius:10px;padding:8px;min-height:120px}.tl h3{margin:0 0 6px;border:0;padding:0}
+.ch{font-size:13px;border:1px solid var(--line);background:transparent;color:inherit;border-radius:8px;padding:4px 8px;margin:2px}.ch:hover{background:var(--line)}
+.ch em{font-style:normal;background:var(--y);color:#3a2a00;border-radius:4px;padding:0 4px;margin-left:4px;font-size:11px}
+@media(max-width:700px){#dir{bottom:auto;top:8px}#card{top:auto;bottom:12px}}
+</style></head><body>
+<header><h1>海大電機島<small>國立臺灣海洋大學電機系・大學部必修課程互動地圖</small></h1>
+<div class="tabs"><button class="t on" data-v="map">全景</button><button class="t" data-v="list">清單</button><button class="t" data-v="time">時間</button></div></header>
+<div class="bar"><span>領域核心</span><span id="doms" style="display:flex;gap:6px"></span><button class="tg" id="bMax"></button><i class="sep"></i><button class="tg" id="bMin">輔系必修</button><button class="tg" id="bPause">暫停小人</button></div>
+<main>
+<svg id="map" viewBox="0 0 1200 700" role="img" aria-label="電機系課程島嶼地圖">
+<defs><g id="dirfig"><ellipse cx="0" cy="1" rx="11" ry="3" fill="#0003"/><rect x="-9" y="-20" width="18" height="19" rx="6" fill="#24415c"/><path d="M0 -20 l-3 4 3 9 3 -9z" fill="#d94b4b"/><circle cx="0" cy="-28" r="8.5" fill="#ffd9b3"/><path d="M-9 -29 a9 9 0 0 1 18 0 q-9 -4 -18 0z" fill="#ddd"/><circle cx="-3.4" cy="-28" r="3" fill="none" stroke="#222" stroke-width="1"/><circle cx="3.4" cy="-28" r="3" fill="none" stroke="#222" stroke-width="1"/><path d="M-2.5 -23 q2.5 2 5 0" stroke="#7a4a3a" fill="none" stroke-width="1"/><rect x="2" y="-15" width="6" height="4" rx="1" fill="#fff"/></g></defs>
+<g id="sea"></g><g id="land"></g><g id="links"></g><g id="blds"></g><g id="ppl"></g>
+<g class="dir" id="dirmap"><use href="#dirfig" transform="translate(600,356) scale(1.7)"/><g transform="translate(600,296)"><rect x="-32" y="-12" width="64" height="22" rx="11" fill="#fff"/><text y="3" font-size="12" font-weight="700" text-anchor="middle" fill="#14566e">系主任</text></g></g>
+</svg>
+<div id="note"></div><aside id="card"></aside>
+<div id="dir"><svg viewBox="-16 -40 32 46"><use href="#dirfig"/></svg><div><div id="dt"></div><div id="da"></div></div></div>
+<section id="ov"></section>
+</main>
+<script>
+const $=s=>document.querySelector(s),NS='http://www.w3.org/2000/svg';
+const el=(t,a,p)=>{const e=document.createElementNS(NS,t);for(const k in a)e.setAttribute(k,a[k]);p&&p.appendChild(e);return e};
+const svg=$('#map'),DN={ew:'電波',ds:'資訊科技',mach:'電力與電子電路',comm:'通訊與訊號處理',ctl:'控制',semi:'固態電子'};
+const NUM='一二三四';
+// id, 名稱, 年級, 學期, 先修/銜接, 輔系代碼, 領域, 加修
+const R=[['calc1','微積分(一)',1,1,[]],['phy1','普通物理(一)',1,1,[]],['phl1','普通物理實驗(一)',1,1,[]],['cs','計算機概論',1,1,[]],['prog','程式語言',1,1,[],'B5301M33'],
+['calc2','微積分(二)',1,2,['calc1']],['phy2','普通物理(二)',1,2,['phy1']],['phl2','普通物理實驗(二)',1,2,['phl1']],['la','線性代數',1,2,['calc1']],['cir1','電路學(一)',1,2,['phy1','calc1'],'B5311P48'],['lab0','計算機實習',1,2,['cs','prog']],
+['cir2','電路學(二)',2,1,['cir1'],'B5322P48'],['el1','電子學(一)',2,1,['cir1'],'B5312P17'],['em1','工程數學(一)',2,1,['calc2'],'B530108U','',1],['emt','電磁學',2,1,['phy2','calc2'],'B5302P50'],['dig','交換電路與邏輯設計',2,1,['cs']],['lab1','電工實驗(一)',2,1,['cir1']],
+['el2','電子學(二)',2,2,['el1'],'B5322P17'],['em2','工程數學(二)',2,2,['em1'],'B530208V','',1],['cx','複變函數',2,2,['em1']],['prob','機率學',2,2,['calc2']],['lab2','電工實驗(二)',2,2,['lab1']],
+['el3','電子學(三)',3,1,['el2'],'B5333P17'],['ew','電磁波',3,1,['emt'],'B5302P49','ew'],['sig','訊號與系統',3,1,['em2','la']],['ds','資料結構',3,1,['prog'],'','ds'],['lab3','電工實驗(三)',3,1,['lab2']],['mach','電機機械',3,2,['cir2'],'','mach'],
+['comm','通訊工程',4,1,['sig','prob'],'','comm'],['ctl','自動控制',4,1,['sig'],'','ctl'],['semi','半導體物理',4,1,['el3'],'','semi'],['lab4','電工實驗(四)',4,2,['lab3']]];
+const G={1:{x:320,y:205,t:'築基島區'},2:{x:880,y:205,t:'電路島區'},3:{x:880,y:500,t:'訊號島區'},4:{x:320,y:500,t:'領域島區'}};
+const B={},bg={1:[],2:[],3:[],4:[]};
+R.forEach(r=>{B[r[0]]={id:r[0],n:r[1],y:r[2],s:r[3],pre:r[4],code:r[5]||'',dom:r[6]||'',x:!!r[7],post:[]};bg[r[2]].push(B[r[0]])});
+Object.values(B).forEach(b=>b.pre.forEach(p=>B[p].post.push(b.id)));
+for(const g in bg){const a=bg[g],rows=Math.ceil(a.length/4);a.forEach((b,i)=>{const r=Math.floor(i/4),n=Math.min(4,a.length-r*4);b.px=G[g].x+(i%4-(n-1)/2)*92;b.py=G[g].y+(r-(rows-1)/2)*74-6})}
+const sn=b=>`${NUM[b.y-1]}年級${b.s==1?'上':'下'}`;
+
+/* 海與島 */
+let sd=7;const rnd=()=>(sd=(sd*16807)%2147483647)/2147483647;
+const sea=$('#sea');
+for(let i=0;i<46;i++){const x=rnd()*1150,y=rnd()*680;if(x>40&&x<1160&&y>20&&y<680)continue;el('path',{d:`M${x} ${y}q5 -5 10 0q5 5 10 0`,class:'wave',style:`animation-delay:${rnd()*4}s`},sea)}
+const land=$('#land');
+el('rect',{x:54,y:24,width:1092,height:652,rx:256,fill:'none',style:'stroke:var(--foam);stroke-width:12;opacity:.7'},land);
+el('rect',{x:70,y:40,width:1060,height:620,rx:240,style:'fill:var(--sand)'},land);
+el('rect',{x:94,y:64,width:1012,height:572,rx:216,style:'fill:var(--g1)'},land);
+const inZ=(x,y)=>Object.values(G).some(z=>((x-z.x)/235)**2+((y-z.y)/150)**2<1)||Math.hypot(x-600,y-350)<85;
+for(let i=0,n=0;n<34&&i<400;i++){const x=120+rnd()*960,y=90+rnd()*520;if(inZ(x,y)||(Math.abs(y-350)<28)||(Math.abs(x-600)<22))continue;n++;el('rect',{x:x-2,y:y,width:4,height:8,fill:'#7a5a3a'},land);el('circle',{cx:x,cy:y,r:10,fill:'#2f8a4f',opacity:.9},land);el('circle',{cx:x-3,cy:y-3,r:5,fill:'#4fb06a',opacity:.8},land)}
+el('path',{d:'M320 205H880V500H320Z M600 205V500 M320 350H880',fill:'none',style:'stroke:var(--sand);stroke-width:26;stroke-linejoin:round'},land);
+el('circle',{cx:600,cy:350,r:66,style:'fill:var(--sand)'},land);el('circle',{cx:600,cy:350,r:52,fill:'none',stroke:'#fff8','stroke-width':3,'stroke-dasharray':'5 6'},land);
+const zl={};
+for(const g in G){const z=G[g];el('ellipse',{cx:z.x,cy:z.y,rx:235,ry:150,style:'fill:var(--g2)',opacity:.92,stroke:'#fff8','stroke-width':2,'stroke-dasharray':'8 7'},land);
+const l=el('g',{class:'zl',transform:`translate(${z.x},${z.y-142})`},land);el('rect',{x:-70,y:-14,width:140,height:26,rx:13,style:`fill:var(--c${g})`},l);el('text',{y:5},l).textContent=`大${NUM[g-1]}・${z.t}`;l.onclick=()=>{select(null);camTo(z.x,z.y,660)};zl[g]=l}
+
+/* 建築 */
+const blds=$('#blds');
+Object.values(B).forEach(b=>{const g=el('g',{class:'b'+(b.code?' m':''),transform:`translate(${b.px},${b.py})`,tabindex:0,role:'button','aria-label':b.n},blds);
+el('rect',{class:'wall',x:-20,y:-4,width:40,height:25,rx:3,fill:'#fff6e3'},g);el('rect',{x:-13,y:3,width:8,height:7,fill:'#9bd3e6'},g);el('rect',{x:3,y:8,width:9,height:13,rx:2,style:`fill:var(--c${b.y})`},g);
+el('polygon',{class:'roof',points:'-26,-3 0,-24 26,-3',style:`fill:var(--c${b.y})`,stroke:'#0003'},g);
+const t=el('text',{y:33},g),n=b.n.length>6?Math.ceil(b.n.length/2):99;
+if(n<99){el('tspan',{x:0},t).textContent=b.n.slice(0,n);el('tspan',{x:0,dy:11},t).textContent=b.n.slice(n)}else t.textContent=b.n;
+if(b.code)el('circle',{cx:22,cy:-14,r:7,fill:'#f5b83d',stroke:'#fff'},g),el('text',{x:22,y:-10.5,style:'font-size:9px;stroke:none;fill:#3a2a00'},g).textContent='輔';
+if(b.dom)el('text',{x:-22,y:-12,style:'font-size:13px;stroke:none'},g).textContent='⚑';
+g.onclick=()=>select(b.id);g.onkeydown=e=>{if(e.key=='Enter'||e.key==' '){e.preventDefault();select(b.id)}};b.e=g});
+
+/* 學生 */
+function person(g){const o=el('g',{class:'st'}),b=el('g',{},o);el('ellipse',{cx:0,cy:1,rx:7,ry:2.5,fill:'#0003'},o);
+const l1=el('line',{x1:-2,y1:-6,x2:-2,y2:0,stroke:'#33415c','stroke-width':3,'stroke-linecap':'round'},b),l2=el('line',{x1:2,y1:-6,x2:2,y2:0,stroke:'#33415c','stroke-width':3,'stroke-linecap':'round'},b);
+el('rect',{x:-6,y:-17,width:12,height:12,rx:5,style:`fill:var(--c${g})`},b);el('circle',{cx:0,cy:-22,r:6,fill:'#ffd9b3'},b);el('path',{d:'M-6.5 -23a6.5 6.5 0 0 1 13 0z',fill:'#3b2a20'},b);
+el('circle',{cx:0,cy:-37,r:6.5,style:`fill:var(--c${g})`,stroke:'#fff'},o);el('text',{x:0,y:-33.5,style:'font:700 9px sans-serif;fill:#fff',"text-anchor":'middle'},o).textContent=g;
+return{o,b,l1,l2}}
+const S=[];
+for(let g=1;g<=4;g++)for(let k=0;k<3;k++){const a=bg[g][(k*3)%bg[g].length],p=person(g);$('#ppl').appendChild(p.o);const s={g,k,p,x:a.px+k*8-8,y:a.py+26,ph:rnd()*6,wait:rnd()*3,face:1,dest:a,tx:0,ty:0};s.tx=s.x;s.ty=s.y;p.o.onclick=e=>{e.stopPropagation();showS(s)};S.push(s)}
+function pick(s){const a=bg[s.g];let b;do{b=rnd()<.12?null:a[Math.floor(rnd()*a.length)]}while(b&&b===s.dest&&a.length>1);s.dest=b;s.tx=b?b.px+rnd()*18-9:600+rnd()*70-35;s.ty=b?b.py+26:352+rnd()*40-10}
+
+/* 鏡頭 */
+let vb={x:0,y:0,w:1200,h:700},tv={...vb},hl=0,paused=false,last=0,D={x:600,y:350,tx:600,ty:350};
+function camTo(cx,cy,w){const h=w*700/1200;tv={x:cx-w/2,y:cy-h/2,w,h}}
+function tick(t){const dt=Math.min(.05,(t-last)/1000||0);last=t;
+for(const k in vb)vb[k]+=(tv[k]-vb[k])*(1-Math.pow(.002,dt));svg.setAttribute('viewBox',`${vb.x} ${vb.y} ${vb.w} ${vb.h}`);
+{const dx=D.tx-D.x,dy=D.ty-D.y,d=Math.hypot(dx,dy);if(d>1){const v=Math.min(110*dt,d);D.x+=dx/d*v;D.y+=dy/d*v}$('#dirmap').setAttribute('transform',`translate(${D.x-600},${D.y-350})`)}
+S.forEach(s=>{let moving=0;if(!paused){if(s.wait>0)s.wait-=dt;else{const dx=s.tx-s.x,dy=s.ty-s.y,d=Math.hypot(dx,dy);if(d<2){s.wait=2+rnd()*4;pick(s)}else{const v=Math.min(46*dt,d);s.x+=dx/d*v;s.y+=dy/d*v;s.ph+=dt*14;moving=1;if(Math.abs(dx)>1)s.face=dx<0?-1:1}}}
+const sw=Math.sin(s.ph)*moving;s.p.l1.setAttribute('x2',-2+sw*5);s.p.l2.setAttribute('x2',2-sw*5);s.p.b.setAttribute('transform',`scale(${s.face},1)`);
+s.p.o.setAttribute('transform',`translate(${s.x},${s.y-Math.abs(sw)*1.5}) scale(${hl==s.g?1.45:1})`)});
+requestAnimationFrame(tick)}
+requestAnimationFrame(tick);
+
+/* 選取與協作線 */
+let sel=null;const links=$('#links');
+function select(id){sel=id?B[id]:null;links.innerHTML='';svg.classList.toggle('focus',!!sel);Object.values(B).forEach(b=>b.e.classList.remove('rel','cur'));
+if(!sel){D.tx=600;D.ty=350;$('#card').classList.remove('on');return}
+const ln=(a,b)=>{const mx=(a.px+b.px)/2,my=Math.min(a.py,b.py)-50-Math.abs(a.px-b.px)/12;el('path',{class:'lk',d:`M${a.px} ${a.py} Q${mx} ${my} ${b.px} ${b.py}`},links)};
+sel.pre.forEach(i=>{B[i].e.classList.add('rel');ln(B[i],sel)});sel.post.forEach(i=>{B[i].e.classList.add('rel');ln(sel,B[i])});sel.e.classList.add('cur');
+S.forEach(s=>{if(s.g==sel.y&&rnd()<.7){s.dest=sel;s.tx=sel.px+rnd()*16-8;s.ty=sel.py+26;s.wait=0}});
+camTo(sel.px,sel.py,680);
+const c=$('#card'),chip=i=>`<button class="ch" data-i="${i}">${B[i].n}</button>`;let note='';
+if(/電路學/.test(sel.n))note='電路學為一下、二上課程，須依序修習。';if(/電子學/.test(sel.n))note='電子學為二上、二下、三上課程，須依序修習。';if(sel.id=='prog')note='輔系必修表中名稱為「程式設計」。';if(sel.x)note='輔系：非受予工學士須加修工程數學，共 6 學分。';
+c.innerHTML=`<button class="x" aria-label="關閉">×</button><h2>${sel.n}</h2><div><span class="tag">${sn(sel)}</span>${sel.code?`<span class="tag y">輔系必修・3 學分</span><span class="tag">${sel.code}</span>`:''}${sel.x?'<span class="tag y">輔系加修</span>':''}${sel.dom?`<span class="tag y">⚑ 領域核心：${DN[sel.dom]}組</span>`:''}</div>
+${note?`<p>${note}</p>`:''}<h4>先修／銜接自</h4><p>${sel.pre.length?sel.pre.map(chip).join(''):'無（起點課程）'}</p><h4>接下來可以走向</h4><p>${sel.post.length?sel.post.map(chip).join(''):'這條路線的終點'}</p><p class="sm">年級學期與銜接關係依系上課程關聯圖整理推定，實際以選課公告為準。</p>`;c.classList.add('on')}
+function showS(s){const c=$('#card');c.innerHTML=`<button class="x" aria-label="關閉">×</button><h2>大${NUM[s.g-1]}學生 ${'ABC'[s.k]}</h2><p>${s.wait>0?'正在':'正前往'}：<b>${s.dest?s.dest.n:'中央廣場'}</b></p>${s.dest?`<p><button class="ch" data-i="${s.dest.id}">看這門課</button></p>`:''}<p class="sm">這位同學在${NUM[s.g-1]}年級島區裡四處上課。</p>`;c.classList.add('on');talk(s)}
+function home(){D.tx=600;D.ty=350;camTo(600,350,1200)}
+function talk(s){const d=s.dest,pr=d&&d.pre.length?'，它銜接自「'+d.pre.map(i=>B[i].n).join('、')+'」':'';s.wait=Math.max(s.wait,9);D.tx=s.x-30;D.ty=s.y+3;camTo(s.x-15,s.y-15,520);
+say(d?`大${NUM[s.g-1]}的同學你好！聽說你要去「${d.n}」${pr}。有問題隨時來問我，加油！`:`大${NUM[s.g-1]}的同學你好！在廣場休息嗎？記得看看接下來要修什麼課。`,d?[['看這門課',()=>select(d.id)],['好，謝謝主任',home]]:[['好，謝謝主任',home]])}
+$('#card').onclick=e=>{if(e.target.closest('.x')){select(null);$('#card').classList.remove('on')}else{const b=e.target.closest('[data-i]');b&&select(b.dataset.i)}};
+svg.addEventListener('click',e=>{if(e.target===svg||e.target.closest('#land'))select(null)});
+
+/* 領域與輔系 */
+let max=3,dom=[],minor=false;
+function rdDom(){$('#doms').innerHTML=Object.entries(DN).map(([k,v])=>`<button class="dc${dom.includes(k)?' on':''}" data-d="${k}">${v}</button>`).join('');$('#bMax').textContent=`六選${NUM[max-1]}・已選 ${dom.length}/${max}（點擊切換版本）`;Object.values(B).forEach(b=>b.e.classList.toggle('pk',!!b.dom&&dom.includes(b.dom)))}
+$('#doms').onclick=e=>{const k=e.target.dataset.d;if(!k)return;dom=dom.includes(k)?dom.filter(x=>x!=k):[...dom,k].slice(-max);rdDom();const b=Object.values(B).find(x=>x.dom==k);say(`${DN[k]}組的核心課程是「${b.n}」，在${sn(b)}。`,[['看這門課',()=>select(b.id)]])};
+$('#bMax').onclick=()=>{max=max==3?4:3;dom=dom.slice(-max);rdDom();say(max==3?'這是「六選三」版本的關聯圖。':'這是「六選四」版本的關聯圖。兩份關聯圖版本不同，請依入學年度確認。')};
+function setMinor(v){minor=v;svg.classList.toggle('minor',v);$('#bMin').classList.toggle('on',v);const n=R.filter(r=>r[5]&&!r[7]).length,o=$('#note');o.style.display=v?'block':'none';o.textContent=`輔系必修 ${n} 科共 ${n*3} 學分（表定至少應修 25 學分）；非受予工學士須加修工程數學 6 學分`}
+$('#bMin').onclick=()=>setMinor(!minor);
+$('#bPause').onclick=function(){paused=!paused;this.classList.toggle('on',paused);this.textContent=paused?'繼續走路':'暫停小人'};
+
+/* 系主任導覽 */
+let acts=[];
+function say(t,a=[]){$('#dt').textContent=t;acts=a.map(x=>x[1]);$('#da').innerHTML=a.map((x,i)=>`<button data-a="${i}">${x[0]}</button>`).join('')}
+$('#da').onclick=e=>{const i=e.target.dataset.a;i!=null&&acts[i]()};
+const zoom=g=>()=>{hl=g;camTo(G[g].x,G[g].y,660)};
+const T=[
+['歡迎來到電機島，我是系主任。島上是大一到大四的必修課程，同學們正走向各自的教室。點建築看課程，點小人看他們的行程。',()=>{hl=0;camTo(600,350,1200)}],
+['大一先打底：微積分、普通物理與實驗、線性代數、計算機概論、程式語言，下學期的電路學(一)就是電機專業的起點。',zoom(1)],
+['大二進入核心：電路學(二)、電子學(一)(二)、電磁學、工程數學、電工實驗。提醒你，電路學為一下、二上，電子學為二上、二下、三上，都要依序修習。',zoom(2)],
+['大三有電子學(三)、電磁波、訊號與系統、資料結構、電機機械，領域核心課程從這裡開始出現。',zoom(3)],
+['大四是領域核心：通訊工程、自動控制、半導體物理，再加上電工實驗(四)。',zoom(4)],
+['電機系分成六個領域：電波、資訊科技、電力與電子電路、通訊與訊號處理、控制、固態電子。關聯圖有「六選三」與「六選四」兩個版本，上方可以試選。',()=>{hl=0;camTo(600,350,1200)}],
+['想輔系電機？輔系必修表至少應修 25 學分：程式設計、電路學(一)(二)、電子學(一)(二)(三)、電磁學、電磁波；非受予工學士要再加修工程數學 6 學分。金色「輔」字就是這些課。',()=>{hl=0;camTo(600,350,1200);setMinor(true)}]];
+function tour(i){D.tx=600;D.ty=350;select(null);$('#card').classList.remove('on');setView('map');T[i][1]();const a=[];if(i<T.length-1)a.push(['下一步',()=>tour(i+1)]);if(i>0)a.push(['上一步',()=>tour(i-1)]);a.push(['離開導覽',end]);say(T[i][0],a)}
+function end(){D.tx=600;D.ty=350;hl=0;setMinor(false);camTo(600,350,1200);say('隨時點我，或選擇重新導覽。',[['重新導覽',()=>tour(0)]])}
+$('#dirmap').onclick=()=>tour(0);
+
+/* 清單與時間 */
+const chp=b=>`<button class="ch" data-i="${b.id}">${b.n}${b.code?'<em>輔</em>':''}${b.dom?'<em>⚑</em>':''}</button>`;
+function setView(v){document.querySelectorAll('.t').forEach(t=>t.classList.toggle('on',t.dataset.v==v));const o=$('#ov');o.style.display=v=='map'?'none':'block';
+if(v=='list')o.innerHTML=[1,2,3,4].map(g=>`<h3 style="border-color:var(--c${g})">大${NUM[g-1]}・${G[g].t}</h3>`+[1,2].map(s=>`<div class="row"><b>${s==1?'上學期':'下學期'}</b>${bg[g].filter(b=>b.s==s).map(chp).join('')||'<i class="sm">—</i>'}</div>`).join('')).join('')+'<p class="sm">⚑ 領域核心課程　輔 輔系必修（工程數學為加修）</p>';
+if(v=='time')o.innerHTML='<div class="tl">'+[1,2,3,4].flatMap(g=>[1,2].map(s=>`<div><h3 style="color:var(--c${g})">${NUM[g-1]}年級${s==1?'上':'下'}</h3>${bg[g].filter(b=>b.s==s).map(chp).join('<br>')}</div>`)).join('')+'</div>'}
+document.querySelector('.tabs').onclick=e=>e.target.dataset.v&&setView(e.target.dataset.v);
+$('#ov').onclick=e=>{const b=e.target.closest('[data-i]');if(b){setView('map');select(b.dataset.i)}};
+
+rdDom();say('歡迎來到電機島！點我，讓系主任帶你走一圈。',[['開始導覽',()=>tour(0)]]);
+</script></body></html>
